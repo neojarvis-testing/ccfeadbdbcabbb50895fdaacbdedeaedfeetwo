@@ -9,7 +9,8 @@ import { SongService } from '../services/song.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],  // ✅ Import ReactiveFormsModule here
   templateUrl: './edit-song.component.html',
-  styleUrls: ['./edit-song.component.css']
+  styleUrls: ['./edit-song.component.css'],
+  providers: [SongService],
 })
 export class EditSongComponent {
   songForm: FormGroup;
@@ -31,10 +32,12 @@ export class EditSongComponent {
     });
 
     this.songId = +this.route.snapshot.paramMap.get('id')!;
+    console.log('Song ID:', this.songId);
     this.loadSongDetails();
   }
 
   loadSongDetails(): void {
+    console.log('Loading song:', this.songService.getSongById(this.songId));
     this.songService.getSongById(this.songId).subscribe(
       (song) => this.songForm.patchValue(song),
       (error) => console.error('Error loading song details:', error)

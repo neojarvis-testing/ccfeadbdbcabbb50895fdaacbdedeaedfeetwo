@@ -19,8 +19,8 @@ describe('AddSongComponent', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
   
     TestBed.configureTestingModule({
-      declarations: [AddSongComponent],
-      imports: [ReactiveFormsModule, HttpClientTestingModule, FormsModule],
+      // declarations: [AddSongComponent],
+      imports: [ReactiveFormsModule, HttpClientTestingModule, FormsModule, AddSongComponent],
       providers: [
         SongService,
         { provide: Router, useValue: routerSpy }

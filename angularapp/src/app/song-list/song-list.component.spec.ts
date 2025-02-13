@@ -8,7 +8,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { Song } from '../model/song.model';
-import { By } from '@angular/platform-browser';
 
 describe('SongListComponent', () => {
   let component: SongListComponent;
@@ -50,8 +49,8 @@ describe('SongListComponent', () => {
     const spy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
-      declarations: [SongListComponent],
-      imports: [HttpClientTestingModule, RouterTestingModule],
+      // declarations: [SongListComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule, SongListComponent],
       providers: [SongService, { provide: Router, useValue: spy }]
     });
 

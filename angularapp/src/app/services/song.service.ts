@@ -26,6 +26,8 @@ export class SongService {
   }
 
   getSongById(id: number): Observable<Song> {
+    console.log('Song ID:', id);
+    console.log('Backend URL:', `${this.backendUrl}/${id}`);
     return this.http.get<Song>(`${this.backendUrl}/${id}`);
   }
 }

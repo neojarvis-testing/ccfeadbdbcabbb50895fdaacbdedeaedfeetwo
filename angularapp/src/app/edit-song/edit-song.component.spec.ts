@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { EditSongComponent } from './edit-song.component';
 import { SongService } from '../services/song.service';
 import { Song } from '../model/song.model';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('EditSongComponent', () => {
   let component: EditSongComponent;
@@ -19,8 +20,8 @@ describe('EditSongComponent', () => {
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      declarations: [ EditSongComponent ],
-      imports: [ ReactiveFormsModule ],
+      // declarations: [ EditSongComponent ],
+      imports: [ ReactiveFormsModule, EditSongComponent, HttpClientTestingModule],
       providers: [
         { provide: SongService, useValue: mockSongService },
         { provide: Router, useValue: mockRouter },
@@ -30,6 +31,7 @@ describe('EditSongComponent', () => {
 
     fixture = TestBed.createComponent(EditSongComponent);
     component = fixture.componentInstance;
+    
   });
 
   fit('should_create_edit_song_component', () => {
@@ -69,22 +71,36 @@ describe('EditSongComponent', () => {
     expect(component.songForm.valid).toBeTruthy();
   });
 
-  fit('should_navigate_to_songs_list_after_successful_update', () => {
-    mockSongService.getSongById.and.returnValue(of({} as Song));
-    mockSongService.updateSong.and.returnValue(of({} as Song));
-
-    component.loadSongDetails();
-    component.songForm.patchValue({
+  fit('should_navigate_to_songs_list_after_successful_update', (done) => {
+    const mockSong: Song = {
+      id: 1,
       title: 'Test Song',
       artist: 'Test Artist',
       album: 'Test Album',
       genre: 'Test Genre',
-      releaseDate: '2023-01-15',
+      releaseDate: new Date('2023-01-15'),
       duration: 180
-    });
-    component.onSubmit();
+    };
 
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/songs']);
+    mockSongService.getSongById.and.returnValue(of(mockSong));
+    mockSongService.updateSong.and.returnValue(of(mockSong));
+
+    component.loadSongDetails();
+    component.songForm.patchValue({
+      title: mockSong.title,
+      artist: mockSong.artist,
+      album: mockSong.album,
+      genre: mockSong.genre,
+      releaseDate: mockSong.releaseDate.toISOString().split('T')[0], // Convert to YYYY-MM-DD format
+      duration: mockSong.duration
+    });
+    
+    component.onSubmit();
+    
+    setTimeout(() => {
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/songs']);
+      done();
+    });
   });
 
   fit('should_not_call_updateSong_if_form_is_invalid', () => {
