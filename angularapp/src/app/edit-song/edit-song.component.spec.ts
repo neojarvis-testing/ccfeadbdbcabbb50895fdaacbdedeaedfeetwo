@@ -7,7 +7,6 @@ import { of } from 'rxjs';
 import { EditSongComponent } from './edit-song.component';
 import { SongService } from '../services/song.service';
 import { Song } from '../model/song.model';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('EditSongComponent', () => {
   let component: EditSongComponent;
@@ -20,8 +19,8 @@ describe('EditSongComponent', () => {
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      // declarations: [ EditSongComponent ],
-      imports: [ ReactiveFormsModule, EditSongComponent, HttpClientTestingModule],
+      declarations: [ EditSongComponent ],
+      imports: [ ReactiveFormsModule ],
       providers: [
         { provide: SongService, useValue: mockSongService },
         { provide: Router, useValue: mockRouter },
@@ -31,17 +30,16 @@ describe('EditSongComponent', () => {
 
     fixture = TestBed.createComponent(EditSongComponent);
     component = fixture.componentInstance;
-    
   });
 
   fit('should_create_edit_song_component', () => {
-    expect(component).toBeTruthy();
+    expect((component as any)).toBeTruthy();
   });
 
   fit('should_initialize_the_form_with_empty_fields', () => {
     mockSongService.getSongById.and.returnValue(of({} as Song));
-    component.loadSongDetails();
-    expect(component.songForm.value).toEqual({
+    (component as any).ngOnInit();
+    expect((component as any).songForm.value).toEqual({
       title: '',
       artist: '',
       album: '',
@@ -53,14 +51,14 @@ describe('EditSongComponent', () => {
 
   fit('should_mark_form_as_invalid_when_empty', () => {
     mockSongService.getSongById.and.returnValue(of({} as Song));
-    component.loadSongDetails();
-    expect(component.songForm.valid).toBeFalsy();
+    (component as any).ngOnInit();
+    expect((component as any).songForm.valid).toBeFalsy();
   });
 
   fit('should_mark_form_as_valid_when_all_fields_are_filled_correctly', () => {
     mockSongService.getSongById.and.returnValue(of({} as Song));
-    component.loadSongDetails();
-    component.songForm.patchValue({
+    (component as any).ngOnInit();
+    (component as any).songForm.patchValue({
       title: 'Test Song',
       artist: 'Test Artist',
       album: 'Test Album',
@@ -68,45 +66,31 @@ describe('EditSongComponent', () => {
       releaseDate: '2023-01-15',
       duration: 180
     });
-    expect(component.songForm.valid).toBeTruthy();
+    expect((component as any).songForm.valid).toBeTruthy();
   });
 
-  fit('should_navigate_to_songs_list_after_successful_update', (done) => {
-    const mockSong: Song = {
-      id: 1,
+  fit('should_navigate_to_songs_list_after_successful_update', () => {
+    mockSongService.getSongById.and.returnValue(of({} as Song));
+    mockSongService.updateSong.and.returnValue(of({} as Song));
+
+    (component as any).ngOnInit();
+    (component as any).songForm.patchValue({
       title: 'Test Song',
       artist: 'Test Artist',
       album: 'Test Album',
       genre: 'Test Genre',
-      releaseDate: new Date('2023-01-15'),
+      releaseDate: '2023-01-15',
       duration: 180
-    };
-
-    mockSongService.getSongById.and.returnValue(of(mockSong));
-    mockSongService.updateSong.and.returnValue(of(mockSong));
-
-    component.loadSongDetails();
-    component.songForm.patchValue({
-      title: mockSong.title,
-      artist: mockSong.artist,
-      album: mockSong.album,
-      genre: mockSong.genre,
-      releaseDate: mockSong.releaseDate.toISOString().split('T')[0], // Convert to YYYY-MM-DD format
-      duration: mockSong.duration
     });
-    
-    component.onSubmit();
-    
-    setTimeout(() => {
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/songs']);
-      done();
-    });
+    (component as any).onSubmit();
+
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/songs']);
   });
 
   fit('should_not_call_updateSong_if_form_is_invalid', () => {
     mockSongService.getSongById.and.returnValue(of({} as Song));
-    component.loadSongDetails();
-    component.onSubmit();
+    (component as any).ngOnInit();
+    (component as any).onSubmit();
 
     expect(mockSongService.updateSong).not.toHaveBeenCalled();
   });
